@@ -104,10 +104,11 @@
 
   <script>
     const hostLocal = ["", "localhost", "127.0.0.1"].includes(window.location.hostname);
+    const hostGithubPages = window.location.hostname.endsWith("github.io");
     const API_URL = (
       window.API_URL ||
       window.localStorage.getItem("API_URL") ||
-      (hostLocal ? "http://localhost:3001" : "")
+      (hostLocal ? "http://localhost:3001" : (hostGithubPages ? "" : window.location.origin))
     ).replace(/\/$/, "");
     const mensagemApiPadrao = API_URL
       ? `A busca consulta o backend em ${API_URL}.`
