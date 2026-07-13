@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+*.log
+
+*.xlsx
+*.xls
+*.csv
+
+backend/data/
+backend/node_modules/
+backend/
+
+.vscode/
