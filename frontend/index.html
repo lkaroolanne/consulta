@@ -80,7 +80,7 @@
 
             <div class="actions-row">
               <button id="atualizar-lote" class="ghost-button" type="button" disabled>
-                Atualizar Tudo
+                Enriquecer API
               </button>
               <button id="exportar" class="secondary-button" type="button" disabled>
                 Exportar Excel
@@ -93,12 +93,41 @@
             A busca consulta o backend em http://localhost:3001.
           </p>
 
+          <div id="paginacao" class="pagination-bar" hidden>
+            <div>
+              <strong id="pagina-info">Pagina 1</strong>
+              <span id="pagina-range">Mostrando resultados</span>
+            </div>
+            <div class="pagination-actions">
+              <button id="pagina-anterior" class="ghost-button" type="button">Anterior</button>
+              <button id="pagina-proxima" class="ghost-button" type="button">Proxima</button>
+            </div>
+          </div>
+
           <div class="insight-bar" id="insight-bar" hidden>
             <div>
               <span class="insight-label">Leitura comercial</span>
               <strong id="insight-principal">Base aguardando consulta</strong>
             </div>
             <p id="insight-detalhe">Use um CNAE para resultado cirurgico ou uma palavra-chave para radar de aderencia.</p>
+          </div>
+
+          <div class="solution-strip" id="solution-strip" hidden>
+            <div class="solution-card is-hot">
+              <span>Prioridade</span>
+              <strong id="solucao-prioridade">-</strong>
+              <small id="solucao-detalhe">Aguardando consulta</small>
+            </div>
+            <div class="solution-card">
+              <span>Melhor acao</span>
+              <strong id="solucao-acao">-</strong>
+              <small id="solucao-canal">Canal recomendado aparece aqui</small>
+            </div>
+            <div class="solution-card">
+              <span>Base acionavel</span>
+              <strong id="solucao-contatos">-</strong>
+              <small>Empresas com telefone ou e-mail</small>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -140,6 +169,7 @@
       ? `A busca consulta o backend em ${API_URL}.`
       : "Configure a URL publica do backend para usar a busca no GitHub Pages.";
     const ATUALIZACOES_SIMULTANEAS = 6;
+    const LIMITE_CNAE_TELA = 10000;
     const MINIMO_ATALHO_TERMO = 1;
 
     const atalhos = [
@@ -207,8 +237,19 @@
     const insightBar = document.querySelector("#insight-bar");
     const insightPrincipal = document.querySelector("#insight-principal");
     const insightDetalhe = document.querySelector("#insight-detalhe");
+    const solutionStrip = document.querySelector("#solution-strip");
+    const solucaoPrioridade = document.querySelector("#solucao-prioridade");
+    const solucaoDetalhe = document.querySelector("#solucao-detalhe");
+    const solucaoAcao = document.querySelector("#solucao-acao");
+    const solucaoCanal = document.querySelector("#solucao-canal");
+    const solucaoContatos = document.querySelector("#solucao-contatos");
+    const paginacao = document.querySelector("#paginacao");
+    const paginaInfo = document.querySelector("#pagina-info");
+    const paginaRange = document.querySelector("#pagina-range");
+    const paginaAnterior = document.querySelector("#pagina-anterior");
+    const paginaProxima = document.querySelector("#pagina-proxima");
 
-    let buscaAtual = { tipo: "", valor: "" };
+    let buscaAtual = { tipo: "", valor: "", pagina: 1, totalPaginas: 1 };
     let empresasAtuais = [];
     let totalBaseOnline = null;
     let atalhosVisiveis = atalhos;
@@ -254,6 +295,71 @@
       insightBar.hidden = false;
       insightPrincipal.textContent = titulo;
       insightDetalhe.textContent = detalhe;
+    }
+
+    function temTelefone(empresa) {
+      return Boolean(String(empresa.telefone1 || empresa.telefone || "").trim());
+    }
+
+    function temEmail(empresa) {
+      return Boolean(String(empresa.email || "").trim());
+    }
+
+    function atualizarSolucao(empresas, total) {
+      const lista = Array.isArray(empresas) ? empresas : [];
+      const comTelefone = lista.filter(temTelefone).length;
+      const comEmail = lista.filter(temEmail).length;
+      const acionaveis = lista.filter((empresa) => temTelefone(empresa) || temEmail(empresa)).length;
+      const baseComparacao = Math.max(lista.length, 1);
+      const taxaAcionavel = Math.round((acionaveis / baseComparacao) * 100);
+
+      solutionStrip.hidden = false;
+      solucaoContatos.textContent = `${formatarNumero(acionaveis)} / ${formatarNumero(lista.length)}`;
+
+      if (!total) {
+        solucaoPrioridade.textContent = "Sem leads";
+        solucaoDetalhe.textContent = "Ajuste o CNAE ou tente uma palavra-chave mais ampla";
+        solucaoAcao.textContent = "Nova busca";
+        solucaoCanal.textContent = "Use os atalhos laterais para acelerar a consulta";
+        return;
+      }
+
+      if (taxaAcionavel >= 70 && comTelefone >= comEmail) {
+        solucaoPrioridade.textContent = "Alta";
+        solucaoDetalhe.textContent = `${taxaAcionavel}% da amostra tem contato direto`;
+        solucaoAcao.textContent = "Ligar primeiro";
+        solucaoCanal.textContent = "Telefone disponivel para abordagem comercial";
+        return;
+      }
+
+      if (taxaAcionavel >= 45 || comEmail > comTelefone) {
+        solucaoPrioridade.textContent = "Media";
+        solucaoDetalhe.textContent = `${taxaAcionavel}% da amostra esta acionavel`;
+        solucaoAcao.textContent = "Campanha segmentada";
+        solucaoCanal.textContent = comEmail ? "E-mail e telefone como reforco" : "Telefone como canal principal";
+        return;
+      }
+
+      solucaoPrioridade.textContent = "Enriquecer";
+      solucaoDetalhe.textContent = "Poucos contatos completos nesta pagina";
+      solucaoAcao.textContent = "Atualizar pela API";
+      solucaoCanal.textContent = "Use Atualizar Tudo antes da exportacao";
+    }
+
+    function atualizarPaginacao(dados) {
+      const totalPaginas = Number(dados.totalPaginas || 1);
+      const pagina = Number(dados.pagina || 1);
+
+      if (buscaAtual.tipo !== "cnae" || totalPaginas <= 1) {
+        paginacao.hidden = true;
+        return;
+      }
+
+      paginacao.hidden = false;
+      paginaInfo.textContent = `Pagina ${formatarNumero(pagina)} de ${formatarNumero(totalPaginas)}`;
+      paginaRange.textContent = `Mostrando ${formatarNumero(dados.inicio)} a ${formatarNumero(dados.fim)} de ${formatarNumero(dados.total)} CNPJ(s).`;
+      paginaAnterior.disabled = pagina <= 1;
+      paginaProxima.disabled = pagina >= totalPaginas;
     }
 
     async function buscarJson(url, opcoes = {}) {
@@ -492,7 +598,7 @@
       }
     }
 
-    async function executarBusca(valor, tipo = "auto") {
+    async function executarBusca(valor, tipo = "auto", pagina = 1) {
       const termo = String(valor || "").trim();
 
       if (!termo) {
@@ -514,7 +620,7 @@
       }
 
       const url = buscaPorCnae
-        ? `${API_URL}/empresas/cnae/${apenasNumeros}`
+        ? `${API_URL}/empresas/cnae/${apenasNumeros}?limite=${LIMITE_CNAE_TELA}&pagina=${pagina}`
         : `${API_URL}/empresas/busca?termo=${encodeURIComponent(termo)}`;
 
       definirCarregando(true);
@@ -533,13 +639,15 @@
 
         buscaAtual = {
           tipo: buscaPorCnae ? "cnae" : "termo",
-          valor: buscaPorCnae ? dados.cnae : dados.termo
+          valor: buscaPorCnae ? dados.cnae : dados.termo,
+          pagina: dados.pagina || 1,
+          totalPaginas: dados.totalPaginas || 1
         };
 
         const exibidos = dados.exibidos || dados.empresas?.length || 0;
-        resumo.textContent = `${dados.total} CNPJ(s) encontrados`;
+        resumo.textContent = `${formatarNumero(dados.total)} CNPJ(s) encontrados`;
         mensagem.textContent = buscaAtual.tipo === "cnae"
-          ? `CNAE principal exato ${buscaAtual.valor}. A tela mostra todos os registros encontrados; Exportar Excel baixa a mesma lista completa.`
+          ? `CNAE principal exato ${buscaAtual.valor}. Pagina ${formatarNumero(buscaAtual.pagina)} com ${formatarNumero(exibidos)} registro(s); Exportar Excel baixa tudo.`
           : `Filtro aplicado: palavra-chave "${buscaAtual.valor}". Aderencia de solda/revenda ativada.`;
 
         if (!dados.total && totalBaseOnline === 0) {
@@ -558,12 +666,16 @@
             "A busca por termo cruza palavras fortes de solda, ferramentas, gases e revenda para reduzir ruido."
           );
         }
+        atualizarPaginacao(dados);
+        atualizarSolucao(dados.empresas || [], dados.total);
         botaoExportar.disabled = false;
         botaoAtualizarLote.disabled = !dados.empresas?.length;
         renderizarLinhas(dados.empresas || []);
       } catch (error) {
-        buscaAtual = { tipo: "", valor: "" };
+        buscaAtual = { tipo: "", valor: "", pagina: 1, totalPaginas: 1 };
         empresasAtuais = [];
+        paginacao.hidden = true;
+        solutionStrip.hidden = true;
         resumo.textContent = "Erro na consulta";
         mensagem.textContent = error.message;
         tabela.innerHTML = '<tr><td colspan="9" class="empty-state">Nao foi possivel carregar os dados.</td></tr>';
@@ -644,13 +756,27 @@
         : `${API_URL}/empresas/busca/exportar?termo=${encodeURIComponent(buscaAtual.valor)}`;
     });
 
+    paginaAnterior.addEventListener("click", () => {
+      if (buscaAtual.tipo === "cnae" && buscaAtual.pagina > 1) {
+        executarBusca(buscaAtual.valor, "cnae", buscaAtual.pagina - 1);
+      }
+    });
+
+    paginaProxima.addEventListener("click", () => {
+      if (buscaAtual.tipo === "cnae" && buscaAtual.pagina < buscaAtual.totalPaginas) {
+        executarBusca(buscaAtual.valor, "cnae", buscaAtual.pagina + 1);
+      }
+    });
+
     botaoLimpar.addEventListener("click", () => {
-      buscaAtual = { tipo: "", valor: "" };
+      buscaAtual = { tipo: "", valor: "", pagina: 1, totalPaginas: 1 };
       empresasAtuais = [];
       inputBusca.value = "";
       marcarAtalhoAtivo("", "");
       botaoExportar.disabled = true;
       botaoAtualizarLote.disabled = true;
+      paginacao.hidden = true;
+      solutionStrip.hidden = true;
       resumo.textContent = "Informe um CNAE ou palavra-chave";
       mensagem.textContent = mensagemApiPadrao;
       tabela.innerHTML = '<tr><td colspan="9" class="empty-state">Nenhuma busca realizada.</td></tr>';
