@@ -351,13 +351,17 @@ h2 {
 }
 
 input,
-button {
+button,
+select,
+textarea {
   min-height: 44px;
   border-radius: 6px;
   font: inherit;
 }
 
-input {
+input,
+select,
+textarea {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 0 16px;
@@ -365,7 +369,15 @@ input {
   background: rgba(255, 255, 255, 0.07);
 }
 
-input:focus {
+textarea {
+  min-height: 64px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--accent);
   outline: 3px solid var(--accent-soft);
 }
@@ -468,6 +480,197 @@ button:disabled {
   padding: 14px 24px;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
+}
+
+.suggestion-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.suggestion-row[hidden],
+.commercial-toolbar[hidden],
+.executive-grid[hidden],
+.lead-counter[hidden],
+.ranking-grid[hidden],
+.daily-list[hidden],
+.seller-list[hidden] {
+  display: none;
+}
+
+.suggestion-chip,
+.filter-chip,
+.template-button,
+.compact-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.filter-chip.is-active,
+.suggestion-chip:hover,
+.template-button:hover {
+  border-color: var(--accent);
+  background: rgba(240, 200, 90, 0.16);
+  color: var(--accent-strong);
+}
+
+.commercial-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.quick-filters,
+.toolbar-actions,
+.lead-counter,
+.lead-actions,
+.template-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.select-field,
+.seller-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.select-field select {
+  min-width: 190px;
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.seller-toggle input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: var(--accent);
+}
+
+.executive-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.executive-card {
+  min-height: 88px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 8px;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.executive-card.is-premium {
+  border-color: rgba(240, 200, 90, 0.36);
+  background: linear-gradient(140deg, rgba(240, 200, 90, 0.13), rgba(255, 255, 255, 0.035));
+}
+
+.executive-card span,
+.ranking-grid h3 {
+  display: block;
+  margin: 0;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.executive-card strong {
+  display: block;
+  margin-top: 7px;
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.executive-card small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lead-counter {
+  padding: 11px 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(120, 217, 163, 0.055);
+}
+
+.lead-counter span {
+  border: 1px solid rgba(120, 217, 163, 0.18);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #dff7e9;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ranking-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1.25fr;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ranking-grid section {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ranking-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ranking-list p {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.daily-list {
+  border-bottom: 1px solid var(--line);
+  padding: 16px 24px;
+  background: rgba(240, 200, 90, 0.055);
+}
+
+.daily-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.daily-head h3 {
+  margin: 0;
 }
 
 .pagination-bar {
@@ -600,7 +803,7 @@ button:disabled {
 
 table {
   width: 100%;
-  min-width: 1160px;
+  min-width: 1480px;
   border-collapse: collapse;
 }
 
@@ -630,6 +833,10 @@ tbody tr:hover {
   background: rgba(240, 200, 90, 0.09);
 }
 
+.lead-hot-row {
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
 tbody tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.018);
 }
@@ -646,6 +853,149 @@ td:first-child {
   text-align: center;
   font-size: 14px;
   font-weight: 800;
+}
+
+.score-pill,
+.tag,
+.contact-badge,
+.enrich-badge,
+.dup-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.score-pill {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.score-hot {
+  border-color: rgba(120, 217, 163, 0.5);
+  background: rgba(120, 217, 163, 0.16);
+  color: #bff8d5;
+}
+
+.score-good {
+  border-color: rgba(240, 200, 90, 0.55);
+  background: rgba(240, 200, 90, 0.15);
+  color: var(--accent-strong);
+}
+
+.score-mid {
+  border-color: rgba(100, 190, 255, 0.36);
+  background: rgba(100, 190, 255, 0.12);
+  color: #bfe4ff;
+}
+
+.score-low {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+}
+
+.tag {
+  margin: 2px 4px 2px 0;
+  border: 1px solid rgba(240, 200, 90, 0.24);
+  background: rgba(240, 200, 90, 0.08);
+  color: var(--accent-strong);
+}
+
+.contact-badge {
+  margin-top: 6px;
+  border: 1px solid rgba(120, 217, 163, 0.32);
+  background: rgba(120, 217, 163, 0.12);
+  color: #c9f5d9;
+}
+
+.enrich-badge,
+.dup-badge {
+  margin-top: 6px;
+  border: 1px solid rgba(255, 169, 77, 0.28);
+  background: rgba(255, 169, 77, 0.11);
+  color: #ffd6aa;
+}
+
+.status-select {
+  min-height: 34px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.note-input {
+  margin-top: 7px;
+  min-width: 170px;
+  font-size: 12px;
+}
+
+.favorite-button {
+  min-width: 34px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid rgba(240, 200, 90, 0.32);
+  background: transparent;
+  color: var(--muted);
+}
+
+.favorite-button.is-active {
+  background: var(--accent);
+  color: #050505;
+}
+
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.seller-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 14px;
+}
+
+.seller-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(8, 9, 8, 0.9);
+}
+
+.seller-card.is-hot {
+  border-color: rgba(120, 217, 163, 0.36);
+  background: linear-gradient(145deg, rgba(120, 217, 163, 0.1), rgba(8, 9, 8, 0.92));
+}
+
+.seller-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.seller-card span,
+.seller-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.history-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 @keyframes loadingSweep {
@@ -745,7 +1095,10 @@ td:first-child {
 
   .command-strip,
   .solution-strip,
-  .insight-bar {
+  .insight-bar,
+  .commercial-toolbar,
+  .executive-grid,
+  .ranking-grid {
     grid-template-columns: 1fr;
   }
 
@@ -761,7 +1114,11 @@ td:first-child {
   .actions-row,
   .actions-row button,
   .pagination-actions,
-  .pagination-actions button {
+  .pagination-actions button,
+  .toolbar-actions,
+  .toolbar-actions button,
+  .select-field,
+  .select-field select {
     width: 100%;
   }
 
@@ -775,7 +1132,12 @@ td:first-child {
   .message,
   .pagination-bar,
   .solution-strip,
-  .insight-bar {
+  .insight-bar,
+  .commercial-toolbar,
+  .executive-grid,
+  .lead-counter,
+  .ranking-grid,
+  .daily-list {
     padding: 16px;
   }
 
@@ -850,6 +1212,33 @@ td:first-child {
   }
 
   .mini-button {
+    width: 100%;
+  }
+
+  .lead-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .favorite-button {
+    width: 100%;
+  }
+
+  .seller-list {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .ranking-list p {
+    display: block;
+  }
+
+  .quick-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-chip {
     width: 100%;
   }
 }
