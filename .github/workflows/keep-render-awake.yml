@@ -1,0 +1,22 @@
+name: Keep Render Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render health check
+        env:
+          RENDER_URL: ${{ vars.RENDER_URL }}
+        run: |
+          if [ -z "$RENDER_URL" ]; then
+            RENDER_URL="https://api-8ntb.onrender.com"
+          fi
+
+          URL="${RENDER_URL%/}/health"
+          echo "Pinging $URL"
+          curl --fail --silent --show-error --max-time 20 --retry 2 "$URL"
